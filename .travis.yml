@@ -6,4 +6,5 @@ language: c
 os:
   - windows
 script:
-  - mkdir build && cd build && cmake -G $VISUAL_STUDIO .. && cmake --build . --config Release
+  - echo $VISUAL_STUDIO
+  - mkdir build && cd build && cmake -G "$VISUAL_STUDIO" .. && cmake --build . --config Release
