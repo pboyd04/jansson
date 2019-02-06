@@ -1,22 +1,18 @@
 env:
   matrix:
-    - JANSSON_BUILD_METHOD=cmake JANSSON_CMAKE_OPTIONS="-DJANSSON_TEST_WITH_VALGRIND=ON" JANSSON_EXTRA_INSTALL="valgrind"
-    - JANSSON_BUILD_METHOD=autotools
-    - JANSSON_BUILD_METHOD=coverage JANSSON_CMAKE_OPTIONS="-DJANSSON_COVERAGE=ON -DJANSSON_COVERALLS=ON -DCMAKE_BUILD_TYPE=Debug" JANSSON_EXTRA_INSTALL="lcov curl"
+    - VISUAL_STUDIO="Visual Studio 15 2017" DEPLOY_FILE="jansson.lib"
+    - VISUAL_STUDIO="Visual Studio 15 2017 Win64" DEPLOY_FILE="janssonx64.lib"
 language: c
-compiler:
-  - gcc
-  - clang
-matrix:
-  exclude:
-    - compiler: clang
-      env: JANSSON_BUILD_METHOD=coverage JANSSON_CMAKE_OPTIONS="-DJANSSON_COVERAGE=ON -DJANSSON_COVERALLS=ON -DCMAKE_BUILD_TYPE=Debug" JANSSON_EXTRA_INSTALL="lcov curl"
-  allow_failures:
-    - env: JANSSON_BUILD_METHOD=coverage JANSSON_CMAKE_OPTIONS="-DJANSSON_COVERAGE=ON -DJANSSON_COVERALLS=ON -DCMAKE_BUILD_TYPE=Debug" JANSSON_EXTRA_INSTALL="lcov curl"
-install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -y -qq cmake $JANSSON_EXTRA_INSTALL
+os:
+  - windows
 script:
-  - if [ "$JANSSON_BUILD_METHOD" = "autotools" ]; then autoreconf -f -i && CFLAGS=-Werror ./configure && make check; fi
-  - if [ "$JANSSON_BUILD_METHOD" = "cmake" ]; then mkdir build && cd build && cmake $JANSSON_CMAKE_OPTIONS .. && cmake --build . && ctest --output-on-failure; fi
-  - if [ "$JANSSON_BUILD_METHOD" = "coverage" ]; then mkdir build && cd build && cmake $JANSSON_CMAKE_OPTIONS .. && cmake --build . && cmake --build . --target coveralls; fi
+  - echo $VISUAL_STUDIO
+  - mkdir build && cd build && cmake -G "$VISUAL_STUDIO" .. && cmake --build . --config Release
+before_deploy:
+  - mv lib\Release\jansson.lib $DEPLOY_FILE
+deploy:
+  provider: releases
+  api_key:
+    secure: sn//cjLQ22LgKEEN24F3BiU93LbJcJH22F9tjyVg/cFLFwoIx1XHUYzhkpHXklxX0qHegOVfR7lBbuu2car2Z8k6IEopVnW1stul4NNIDTEnz6IlAvvCFpRB0Bdpkxq/P7flBDkorl3RBMxkJhU68623776fWpfvc2eWrwS8anHkk4EvsnTEJ6quEXFCox0+Ci2ZC+l/KKdI+6PW3kdRJIcwn7JTBNsly/5WVQulEY/Uuw7mZI0bZp/GrMDd+LD1NKy5JbO7Deu5lrDCgQUUjkcmaqjGUVtl1Bi58kF5tfepQzA3Yzh1+e8I7Dv/4aj043ZEbn+vwAotttPNNU8vtSpFcWUgFtBhDnNTR4+djfIvUtw8cdsvmjtXoHiYV2wZOqq8D293o2v4D8LyQ/Ts29LPg89zdeDV6relWW0sa8qB9eMr/ql0IvQFGPaEzmiRtVwoBl9MFOTBLANSYwMFC6uD3jXTYf6cc6xTBkhTLCxdxy7X7xm1eu0d7nPmsHgoxS35Iyg5yPZLYH8ePP2KWW7BiSV8bI6qdsl70n4I05ZuLpI1OZ3281KUVjRIkYgQBVqKbjKP5bxQ8+lwvuQ8XxPVtPk5nO9nDEwoxpLfvtbgLfSAy4Kk6K6CTulrMj3zRT7J7Ud/J09M9oapczzyJvIDledGfEtnL/NvDWTYYDM=
+  file: $DEPLOY_FILE
+  draft: true
