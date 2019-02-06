@@ -1,5 +1,9 @@
+env:
+  matrix:
+    - VISUAL_STUDIO="Visual Studio 15 2017"
+    - VISUAL_STUDIO="Visual Studio 15 2017 Win64"
 language: c
 os:
   - windows
 script:
-  - mkdir build && cd build && cmake $JANSSON_CMAKE_OPTIONS .. && cmake --build .
+  - mkdir build && cd build && cmake -G $VISUAL_STUDIO .. && cmake --build . --config Release
