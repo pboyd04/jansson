@@ -9,7 +9,7 @@ script:
   - echo $VISUAL_STUDIO
   - mkdir build && cd build && cmake -G "$VISUAL_STUDIO" .. && cmake --build . --config Release
 before_deploy:
-  - mkdir deploy && mv lib/Release/jansson.lib deploy/$DEPLOY_FILE
+  - mkdir deploy && mv lib/Release/jansson.lib deploy/$DEPLOY_FILE && cp include/jansson_config.h deploy/ && cp include/jansson.h deploy/
 deploy:
   provider: releases
   api_key:
